@@ -1,3 +1,11 @@
+# visual studio cruft
+.vscode/*
+*.code-workspace
+
+# app stuff
+cutepihole.ini
+notes.txt
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

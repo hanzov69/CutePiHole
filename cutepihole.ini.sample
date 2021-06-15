@@ -1,0 +1,19 @@
+[weather]
+owm_api_key = 
+fixed_location = false
+location = 
+interval = 60
+
+[panels]
+default_panel = weather
+
+[pihole]
+pihole_api_url = http://localhost/admin/api.php
+pihole_api_pass = 
+pihole_disable_time = 300
+pihole_config_file = /etc/pihole/setupVars.conf
+
+[app]
+update_panel = false
+debug = false
+
