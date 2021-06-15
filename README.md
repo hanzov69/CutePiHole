@@ -12,21 +12,15 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
 1. Follow the guide found here: https://www.waveshare.com/wiki/1.44inch_LCD_HAT
 2. Setup Python:
 
-    sudo apt-get update
+    >sudo apt-get update
+    >sudo apt-get install python3-pip 
+    >sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+    >sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+    >sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+    >sudo pip install pillow
+    >sudo apt-get install libopenjp2-7 libtiff5 python3-numpy ttf-dejavu python3-requests
 
-    sudo apt-get install python3-pip 
-
-    sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
-
-    sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
-
-    sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
-
-    sudo pip install pillow
-
-    sudo apt-get install libopenjp2-7 libtiff5 python3-numpy ttf-dejavu python3-requests
-
-    Note: Apt is preferred as the wheels take forever to install
+    Note: Apt is preferred as the wheels take forever to install on a pi zero
 3. Clone this repo to your home directory
 4. Rename `cutepihole.ini.sample` to `cutepihole.ini`
 5. `cat /etc/pihole/setupVars.conf`, copy the value of `WEBPASSWORD` to `pihole_api_pass` in the config file
