@@ -29,7 +29,6 @@ KEY3_PIN       = 16
 
 #init GPIO
 GPIO.setmode(GPIO.BCM) 
-GPIO.cleanup()
 GPIO.setup(KEY_UP_PIN,      GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
 GPIO.setup(KEY_DOWN_PIN,    GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
 GPIO.setup(KEY_LEFT_PIN,    GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
@@ -76,6 +75,7 @@ disable_url = varPiholeApiUrl + "?disable=" + varPiholeDisableTime + "&auth=" + 
 # catch those SIGINTs
 def signal_handler(sig, frame):
     GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.LOW)
+    GPIO.cleanup()
     print('Caught SIGINT')
     sys.exit(0)
 
@@ -129,22 +129,25 @@ def getWeather():
         print("Current Icon: ", weatherdata["current"]["weather"][0]["icon"])
         print ("The icon text is: ", iconmap.get(icon_strip, icon_strip))
         print ("Seconds until next refresh: ", varInterval)
-    return current_temp, current_cond;
+    return current_temp, current_cond, icon_arch;
 
 def panel_pihole():
     y = top
-    draw.text((x, y), IP, font=font, fill="#FFFF00")
-    y += font.getsize(IP)[1]
-    draw.text((x, y), "hostname: {}".format(str(HOST)), font=font, fill="#FFFF00")
-    y += font.getsize(HOST)[1]
-    draw.text((x, y), "Ads Blocked: {}".format(str(ADSBLOCKED)), font=font, fill="#00FF00")
-    y += font.getsize(str(ADSBLOCKED))[1]
-    draw.text((x, y), "Clients: {}".format(str(CLIENTS)), font=font, fill="#0000FF")
-    y += font.getsize(str(CLIENTS))[1]
-    draw.text((x, y), "DNS Queries: {}".format(str(DNSQUERIES)), font=font, fill="#FF00FF")
-    y += font.getsize(str(DNSQUERIES))[1]
-    draw.text((x, y), "Blocking: {}".format(str(STATUS)), font=font, fill="#FF00FF")
-    y += font.getsize(str(STATUS))[1]
+    img = Image.open("images/{}.png".format(STATUS))
+    width = 128
+    height = 128
+    newsize = (width, height)
+    imgr = img.resize(newsize)
+    image.paste(imgr)
+    if STATUS == "enabled":
+        blockedadsstring = ("Blocked Ads: {}".format(str(ADSBLOCKED)))
+        wtext, htext = draw.textsize(blockedadsstring)
+        draw.text(((width-wtext)/2+1, y+116), blockedadsstring, font=font, fill="#FFFFFF")
+        draw.text(((width-wtext)/2, y+116), blockedadsstring, font=font, fill="#000000")
+    else:
+        wtext, htext = draw.textsize("Blocking Disabled!")
+        draw.text(((width-wtext)/2+1, y+116), "Blocking Disabled!", font=font, fill="#FFFFFF")
+        draw.text(((width-wtext)/2, y+116), "Blocking Disabled!", font=font, fill="#000000")
 
 def panel_stats():
     y = top
@@ -158,16 +161,20 @@ def panel_stats():
     y += font.getsize(Disk)[1]
     draw.text((x, y), "DNS Queries: {}".format(DNSQUERIES), font=font, fill="#FF00FF")
 
-def panel_weather(current_temp, current_cond):
+def panel_weather(current_temp, current_cond, icon_arch):
     y = top
-    draw.text((x, y), "Temperature: {}".format(str(current_temp)), font=font, fill="#FFFF00")
-    y += font.getsize(str(current_temp))[1]
-    draw.text((x, y), "Currently it is ", font=font, fill="#FFFF00")
-    y += font.getsize("Currently it is ")[1]
-    draw.text((x, y), current_cond, font=font, fill="#00FF00")
-    y += font.getsize(str(current_cond))[1]
+    width = 128
+    height = 128
+    img = Image.open("images/{}.bmp".format(icon_arch))
+    newsize = (width, height)
+    imgr = img.resize(newsize)
+    image.paste(imgr)
+    wtext, htext = draw.textsize(current_cond)
+    draw.text(((width-wtext)/2, htext-12), current_cond, font=font, fill="#000000")  
+    current_temp = int(current_temp)
+    draw.text((x+1, y+98), "{}°".format(str(current_temp)), font=largefont, fill="#000000")
+    draw.text((x, y+98), "{}°".format(str(current_temp)), font=largefont, fill="#FFFFFF")
     
-
 def panel_update():
     y = top
     draw.text((x, y), "UPDATE CutePiHole?", font=font, fill="#FFFF00")
@@ -212,12 +219,13 @@ x = 0
 
 # Some other nice fonts to try: http://www.dafont.com/bitmap.php
 font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
+largefont = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
 backlight = 1
 
 # main event
 while True:
     # Draw a black filled box to clear the image.
-    draw.rectangle((0, 0, width, height), outline=0, fill=0)
+    draw.rectangle((0, 0, width, height), outline=0, fill=(255, 204, 209))
 
     # Shell scripts for system monitoring from here:
     # https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
@@ -249,7 +257,7 @@ while True:
     if varInterval == 0:
         try:
             varInterval = config['weather'].getint('interval')
-            current_temp, current_cond = getWeather()
+            current_temp, current_cond, icon_arch = getWeather()
         except KeyError:
             time.sleep(1)
             continue
@@ -274,9 +282,16 @@ while True:
         if varUpdatePanel == "true":
             screenid = 4
 
-    #if GPIO.input(KEY_PRESS_PIN) == 0:
-        #if screenid == 4:
-            #do update
+    if GPIO.input(KEY_PRESS_PIN) == 0:
+        if screenid == 1:
+            varDefaultPanel = "pihole"
+        elif screenid == 2:
+            varDefaultPanel = "weather"
+        elif screenid == 3:
+            varDefaultPanel = "stat"
+        config['panels']['default_panel'] = varDefaultPanel    
+        with open('cutepihole.ini', 'w') as configfile:
+            config.write(configfile)
 
     if GPIO.input(KEY1_PIN) == 0: 
         panel_stats()
@@ -284,7 +299,7 @@ while True:
         if screenid == 1:
             panel_pihole()
         elif screenid == 2:
-            panel_weather(current_temp, current_cond)
+            panel_weather(current_temp, current_cond, icon_arch)
         elif screenid == 3:
             panel_stats()
         elif screenid == 4:
@@ -313,11 +328,12 @@ while True:
             if varDebug == "true":
                 print ("Key 3 Pushed - Enabling LCD")
     
-    # Display image.
+    
     signal.signal(signal.SIGINT, signal_handler)
     #signal.pause()
-    disp.LCD_ShowImage(image,0,0)
+
+    # Display image.
+    angle = 180
+    imr = image.rotate(angle)
+    disp.LCD_ShowImage(imr,0,0)
     time.sleep(.1)
-# except:
-    # print("except")
-    # GPIO.cleanup()

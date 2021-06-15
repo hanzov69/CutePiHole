@@ -39,6 +39,7 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
 - Temporarily display system stats with Button 1
 - Disable PiHole blocking for 5 minutes (default) with Button 2
 - Turn Off/On the display with Button 3
+- Save Current screen as "default" by clicking joystick
 
 ## Configuration Options
 - `owm_api_key` - see above
@@ -55,3 +56,10 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
 
 - `update_panel` - no function currently
 - `debug` - displays debug information on console
+
+## Credits
+Please see [LICENSE_SUPPLEMENT](LICENSE_SUPPLEMENT) for supplementary license details.
+
+Credits/Attributions for the Icons used are available in [images/CREDITS](images/CREDITS)
+
+Project inspired by [this excellent guide](https://learn.adafruit.com/pi-hole-ad-blocker-with-pi-zero-w/install-pi-hole) by AdaFruit
