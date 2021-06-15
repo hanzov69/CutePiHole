@@ -9,6 +9,9 @@
 - [ ] systemd units
 - [ ] install scripts?
 - [ ] get WEBPASSWORD automagically
+- [ ] system for changing background color
+- [ ] rework images for better support of background color
+- [ ] configurable drop-shadow (black over white, white over black)
 
 ## Process
 - [ ] Tagging/Releases in Github
