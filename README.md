@@ -13,11 +13,17 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
 2. Setup Python:
 
     >sudo apt-get update
+
     >sudo apt-get install python3-pip 
+    
     >sudo update-alternatives --install /usr/bin/python python /usr/bin/python2.7 1
+    
     >sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 2
+    
     >sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
+    
     >sudo pip install pillow
+    
     >sudo apt-get install libopenjp2-7 libtiff5 python3-numpy ttf-dejavu python3-requests
 
     Note: Apt is preferred as the wheels take forever to install on a pi zero
