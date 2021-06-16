@@ -13,9 +13,11 @@
 - [ ] rework images for better support of background color
 - [ ] configurable drop-shadow (black over white, white over black)
 
-## Process
+## Process / Other
 - [ ] Tagging/Releases in Github
 - [ ] Linting/SCA?
+- [ ] BOM
+- [ ] 3D Models for case
 
 ## Defect / Code Quality
 - [ ] `requirements.txt` freeze package versions
