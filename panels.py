@@ -216,7 +216,44 @@ class Panel():
         self._draw.text(temp_shadow_xy, temp_text, font=LARGEFONT, fill="#000000")
         self._draw.text(temp_text_xy, temp_text, font=LARGEFONT, fill="#FFFFFF")  
        
-        
+    def draw_updatenotice(self):
+        '''
+        Draw the Update Warning
+        '''
+        text = f'Update Warning\nTo check for\nor apply an update\nhold left\non Joystick\nfor a few seconds'
+        # clear the current canvas
+        self._draw.rectangle(
+            (0, 0, self._image.width, self._image.height),
+            outline=0,
+            fill='#000000'
+        )
+        # draw the text TODO: may need to adjust the spacing value
+        self._draw.multiline_text(
+            (self._left, self._top), 
+            text, 
+            spacing=1, 
+            font=FONT, 
+            fill='#FF00FF'
+        )
+    def draw_update(self):
+        '''
+        Draw the Updating dialog
+        '''
+        text = f'Updating!'
+        # clear the current canvas
+        self._draw.rectangle(
+            (0, 0, self._image.width, self._image.height),
+            outline=0,
+            fill='#000000'
+        )
+        # draw the text TODO: may need to adjust the spacing value
+        self._draw.multiline_text(
+            (self._left, self._top), 
+            text, 
+            spacing=1, 
+            font=FONT, 
+            fill='#FF00FF'
+        )    
 
     def display_paint(self):
         angle = 180

@@ -7,6 +7,7 @@ import time
 import signal
 import sys
 from systemd.daemon import notify, Notification
+from selfupdate import update
 
 import RPi.GPIO as GPIO
 
@@ -57,6 +58,7 @@ elif default_panel == "weather":
 elif default_panel == "stat":
     screenid = 3
 
+
 #app config
 update_panel       = config['app']['update_panel']
 debug             = config['app']['debug']
@@ -74,6 +76,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 backlight = 1
+update_counter = 0
 interval = config['weather'].getint('interval')
 
 print('Startup complete')
@@ -105,7 +108,18 @@ while True:
             screenid = 3
 
     if GPIO.input(KEY_LEFT_PIN) == 0 and update_panel == "true":
+        if debug == "true":
+                print ("Key Left Pushed")
         screenid = 4
+
+    if GPIO.input(KEY_RIGHT_PIN) == 0 and update_panel == "true":
+        if debug == "true":
+                print ("Key Right Pushed")
+        if update_counter == 20:
+            update()
+            sys.exit(0)
+        else:
+            update_counter += 1
 
     if GPIO.input(KEY_PRESS_PIN) == 0:
         if screenid == 1:
@@ -132,7 +146,9 @@ while True:
             p.get_sysinfo()
             p.draw_stats()
         elif screenid == 4:
-            panel_update()
+            p.draw_updatenotice()
+        elif screenid == 5:
+            p.draw_update()
         else:
             panel_pihole()
 
