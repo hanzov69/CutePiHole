@@ -6,7 +6,7 @@
 - [ ] Field upgrade routine
 - [ ] Clock Panel
 - [ ] Configure Unit type (for imperial savages)
-- [ ] systemd units
+- [x] systemd units
 - [ ] install scripts?
 - [ ] get WEBPASSWORD automagically
 - [ ] system for changing background color
