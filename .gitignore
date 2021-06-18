@@ -2,6 +2,10 @@
 .vscode/*
 *.code-workspace
 
+# sonar stuff
+.scannerwork/*
+sonar-project.properties
+
 # app stuff
 cutepihole.ini
 notes.txt
