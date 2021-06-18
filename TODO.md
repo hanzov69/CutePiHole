@@ -15,20 +15,20 @@
 
 ## Process / Other
 - [ ] Tagging/Releases in Github
-- [ ] Linting/SCA?
+- [x] Linting/SCA?
 - [ ] BOM
-- [ ] 3D Models for case
+- [x] 3D Models for case
 
 ## Defect / Code Quality
-- [ ] `requirements.txt` freeze package versions
-- [ ] `Panel()` class
-- [ ] allcaps constants/global vars
-- [ ] general variable naming/capitalization cleanup/standardization
-- [ ] function scopes impacting global vars
+- [x] `requirements.txt` freeze package versions
+- [x] `Panel()` class
+- [x] allcaps constants/global vars
+- [x] general variable naming/capitalization cleanup/standardization
+- [x] function scopes impacting global vars
 - [ ] Remove prints - use logging facility for debug
-- [ ] Inconsistent string formatting
-- [ ] "don't have to cast types when using .format() syntax"
-- [ ] remove import json, us r.json
-- [ ] schwack urllib, requests present
+- [x] Inconsistent string formatting
+- [x] "don't have to cast types when using .format() syntax"
+- [x] remove import json, us r.json
+- [x] schwack urllib, requests present
 - [ ] sort out configparser for booleans
-- [ ] move iconmap/url out of getweather()
+- [x] move iconmap/url out of getweather()

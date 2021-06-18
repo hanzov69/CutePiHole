@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import requests
-import json
+#import requests
 import re
 import subprocess
 import configparser
@@ -10,12 +9,12 @@ import sys
 
 import RPi.GPIO as GPIO
 
-# Import Python Imaging Library
-from PIL import Image, ImageDraw, ImageFont
+import panels
+p = panels.Panel()
 
 # Import LCD functions
-from LCD import LCD_1in44
-from LCD import LCD_Config
+import LCD_1in44
+import LCD_Config
 
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
@@ -42,12 +41,6 @@ CONFIG_FILE = "cutepihole.ini"
 #parse our config
 config = configparser.ConfigParser()
 config.read(CONFIG_FILE)
-
-#weather config
-api_key            = config['weather']['owm_api_key']
-fixed_location     = config['weather']['fixed_location']
-location           = config['weather']['location']
-interval           = 0
 
 #pihole config
 pihole_api_url      = config['pihole']['pihole_api_url']
@@ -79,186 +72,16 @@ def signal_handler(sig, frame):
     print('Caught SIGINT')
     sys.exit(0)
 
-#get location based on IP
-def ip_info(addr=''):
-    from urllib.request import urlopen
-    from json import load
-    if addr == '':
-        url = 'https://ipinfo.io/json'
-    else:
-        url = 'https://ipinfo.io/' + addr + '/json'
-    res = urlopen(url)
-    #response from url(if res==None then check connection)
-    data = load(res)
-    config['weather']['location'] = data['loc']
-    with open(CONFIG_FILE, 'w') as configfile:
-        config.write(configfile)
-    return data['loc']
-
-# are we updating from IP address? Or using fixed address?
-if fixed_location == "false":
-    latlon = ip_info()
-else:
-    latlon = config['weather']['location']
-lat,lon = latlon.split(",")
-
-
-# get weather data
-def get_weather():
-    iconmap = {
-        "01": "Clear Sky",
-        "02": "Few Clouds",
-        "03": "Scattered Clouds",
-        "04": "Broken Clouds",
-        "09": "Rain Showers",
-        "10": "Rain",
-        "11": "Thunderstorms",
-        "13": "Snow",
-        "50": "Mist"
-    }
-    url = "https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=metric" % (lat, lon, api_key)
-    weatherresponse = requests.get(url)
-    weatherdata = json.loads(weatherresponse.text)
-    icon_arch = (weatherdata["current"]["weather"][0]["icon"])
-    icon_strip = re.sub('[dn]', '', icon_arch)
-    current_temp = weatherdata["current"]["temp"]
-    current_cond = iconmap.get(icon_strip, icon_strip)
-    if debug == "true":
-        print ("Api key: ", api_key)
-        print("Current Temperature: ", weatherdata["current"]["temp"])
-        print("Current Icon: ", weatherdata["current"]["weather"][0]["icon"])
-        print ("The icon text is: ", iconmap.get(icon_strip, icon_strip))
-        print ("Seconds until next refresh: ", interval)
-    return current_temp, current_cond, icon_arch;
-
-def panel_pihole():
-    y = top
-    img = Image.open("images/{}.png".format(STATUS))
-    width = 128
-    height = 128
-    newsize = (width, height)
-    imgr = img.resize(newsize)
-    image.paste(imgr)
-    if STATUS == "enabled":
-        blockedadsstring = ("Blocked Ads: {}".format(str(ADSBLOCKED)))
-        wtext, htext = draw.textsize(blockedadsstring)
-        draw.text(((width-wtext)/2+1, y+116), blockedadsstring, font=font, fill="#FFFFFF")
-        draw.text(((width-wtext)/2, y+116), blockedadsstring, font=font, fill="#000000")
-    else:
-
-        wtext, htext = draw.textsize("Blocking Disabled!")
-        draw.text(((width-wtext)/2+1, y+116), "Blocking Disabled!", font=font, fill="#FFFFFF")
-        draw.text(((width-wtext)/2, y+116), "Blocking Disabled!", font=font, fill="#000000")
-
-def panel_stats():
-    y = top
-    draw.text((x, y), IP, font=font, fill="#FFFF00")
-    y += font.getsize(IP)[1]
-    draw.text((x, y), CPU, font=font, fill="#FFFF00")
-    y += font.getsize(CPU)[1]
-    draw.text((x, y), MemUsage, font=font, fill="#00FF00")
-    y += font.getsize(MemUsage)[1]
-    draw.text((x, y), Disk, font=font, fill="#0000FF")
-    y += font.getsize(Disk)[1]
-    draw.text((x, y), "DNS Queries: {}".format(DNSQUERIES), font=font, fill="#FF00FF")
-
-def panel_weather(current_temp, current_cond, icon_arch):
-    y = top
-    width = 128
-    height = 128
-    img = Image.open("images/{}.bmp".format(icon_arch))
-    newsize = (width, height)
-    imgr = img.resize(newsize)
-    image.paste(imgr)
-    wtext, htext = draw.textsize(current_cond)
-    draw.text(((width-wtext)/2, htext-12), current_cond, font=font, fill="#000000")  
-    current_temp = int(current_temp)
-    draw.text((x+1, y+98), "{}°".format(str(current_temp)), font=largefont, fill="#000000")
-    draw.text((x, y+98), "{}°".format(str(current_temp)), font=largefont, fill="#FFFFFF")
-    
-def panel_update():
-    y = top
-    draw.text((x, y), "UPDATE CutePiHole?", font=font, fill="#FFFF00")
-    y += font.getsize("UPDATE CutePiHole?")[1]
-    draw.text((x, y), "Press Middle", font=font, fill="#FFFF00")
-    y += font.getsize("Press Middle")[1]
-    draw.text((x, y), "Click to", font=font, fill="#00FF00")
-    y += font.getsize("Click to")[1]
-    draw.text((x, y), "Update", font=font, fill="#0000FF")
-    y += font.getsize("Update")[1]
-
-
-# LCD Setup
-
-# 240x240 display with hardware SPI:
-disp = LCD_1in44.LCD()
-Lcd_ScanDir = LCD_1in44.SCAN_DIR_DFT 
-disp.LCD_Init(Lcd_ScanDir)
-disp.LCD_Clear()
-
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = 128
-height = 128
-image = Image.new('RGB', (width, height))
-
-
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
-
-# Draw a black filled box to clear the image.
-draw.rectangle((0, 0, width, height), outline=0, fill=(0, 0, 0))
-disp.LCD_ShowImage(image,0,0)
-
-# Draw some shapes.
-# First define some constants to allow easy resizing of shapes.
-padding = -2
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = 0
-
-# Some other nice fonts to try: http://www.dafont.com/bitmap.php
-font = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
-largefont = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
 backlight = 1
+interval = config['weather'].getint('interval')
 
 # main event
 while True:
-    # Draw a black filled box to clear the image.
-    draw.rectangle((0, 0, width, height), outline=0, fill=(255, 204, 209))
-
-    # Shell scripts for system monitoring from here:
-    # https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-    cmd = "hostname -I | cut -d\' \' -f1"
-    IP = "IP: "+subprocess.check_output(cmd, shell=True).decode("utf-8")
-    cmd = "hostname | tr -d \'\\n\'"
-    HOST = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
-    CPU = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%s MB  %.2f%%\", $3,$2,$3*100/$2 }'"
-    MemUsage = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    cmd = "df -h | awk '$NF==\"/\"{printf \"Disk: %d/%d GB  %s\", $3,$2,$5}'"
-    Disk = subprocess.check_output(cmd, shell=True).decode("utf-8")
-    cmd = "cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf \"CPU Temp: %.1f C\", $(NF-0) / 1000}\'" # pylint: disable=line-too-long
-
-    # Pi Hole data!
-    try:
-        r = requests.get(pihole_api_url)
-        data = json.loads(r.text)
-        DNSQUERIES = data['dns_queries_today']
-        ADSBLOCKED = data['ads_blocked_today']
-        CLIENTS = data['unique_clients']
-        STATUS = data['status']
-    except KeyError:
-        time.sleep(1)
-        continue
-
     # Weather data!
     if interval == 0:
         try:
             interval = config['weather'].getint('interval')
-            current_temp, current_cond, icon_arch = get_weather()
+            p.get_weather()
         except KeyError:
             time.sleep(1)
             continue
@@ -267,8 +90,6 @@ while True:
         if debug == "true":
             print ("Seconds until next refresh: ", interval)
 
-    y = top
-    
     if GPIO.input(KEY_UP_PIN) == 0:
         screenid += 1
         if screenid >= 4:
@@ -292,16 +113,20 @@ while True:
         config['panels']['default_panel'] = default_panel    
         with open(CONFIG_FILE, 'w') as configfile:
             config.write(configfile)
+        
 
     if GPIO.input(KEY1_PIN) == 0: 
-        panel_stats()
+        p.get_sysinfo()
+        p.draw_stats()
     else:
         if screenid == 1:
-            panel_pihole()
+            p.get_pihole()
+            p.draw_pihole()
         elif screenid == 2:
-            panel_weather(current_temp, current_cond, icon_arch)
+            p.draw_weather()
         elif screenid == 3:
-            panel_stats()
+            p.get_sysinfo()
+            p.draw_stats()
         elif screenid == 4:
             panel_update()
         else:
@@ -333,7 +158,5 @@ while True:
     #signal.pause()
 
     # Display image.
-    angle = 180
-    imr = image.rotate(angle)
-    disp.LCD_ShowImage(imr,0,0)
+    p.display_paint()
     time.sleep(.1)
