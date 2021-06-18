@@ -1,0 +1,16 @@
+[Unit]
+Description=CutePiHole
+After=multi-user.target
+
+[Service]
+User=pi
+Group=pi
+WorkingDirectory=/home/pi/CutePiHole
+ExecStart=/usr/bin/python /home/pi/CutePiHole/cutepihole.py
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=5s
+Type=notify
+
+[Install]
+WantedBy=default.target

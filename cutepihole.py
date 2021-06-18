@@ -6,6 +6,7 @@ import configparser
 import time
 import signal
 import sys
+from systemd.daemon import notify, Notification
 
 import RPi.GPIO as GPIO
 
@@ -74,6 +75,9 @@ def signal_handler(sig, frame):
 
 backlight = 1
 interval = config['weather'].getint('interval')
+
+print('Startup complete')
+notify(Notification.READY)
 
 # main event
 while True:
