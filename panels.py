@@ -3,8 +3,17 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import requests
 import subprocess
-import LCD_1in44
-import LCD_Config
+#import LCD_1in44
+#import LCD_Config
+
+import spidev as SPI
+import ST7789
+
+RST = 27
+DC = 25
+BL = 24
+bus = 0
+device = 0
 
 CONFIG_FILE = './cutepihole.ini'
 WEATHER_URL = 'https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=%s'
@@ -12,8 +21,8 @@ FONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
 LARGEFONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
 YPADDING = -2
 XPADDING = 0
-WIDTH = 128
-HEIGHT = 128
+WIDTH = 240
+HEIGHT = 240
 PANEL_SCREENID_MAP = {
     'pihole': 1,
     'weather': 2,
@@ -33,11 +42,14 @@ WEATHER_ICON_MAP = {
 }
 
 # LCD Setup
-disp = LCD_1in44.LCD()
-Lcd_ScanDir = LCD_1in44.SCAN_DIR_DFT 
-disp.LCD_Init(Lcd_ScanDir)
-disp.LCD_Clear()
+#disp = LCD_1in44.LCD()
+disp = ST7789.ST7789(SPI.SpiDev(bus, device),RST, DC, BL)
 
+#Lcd_ScanDir = LCD_1in44.SCAN_DIR_DFT 
+#disp.LCD_Init(Lcd_ScanDir)
+#disp.LCD_Clear()
+disp.Init()
+disp.clear()
 
 class Panel():
 
@@ -258,7 +270,7 @@ class Panel():
     def display_paint(self):
         angle = 180
         imr = self._image.rotate(angle)
-        disp.LCD_ShowImage(imr,0,0)
+        disp.ShowImage(imr,0,0)
 
 def get_ip_location(ip=''):
     '''

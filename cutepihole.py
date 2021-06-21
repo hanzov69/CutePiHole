@@ -6,8 +6,9 @@ import configparser
 import time
 import signal
 import sys
+import git
 from systemd.daemon import notify, Notification
-from selfupdate import update
+
 
 import RPi.GPIO as GPIO
 
@@ -15,8 +16,17 @@ import panels
 p = panels.Panel()
 
 # Import LCD functions
-import LCD_1in44
+#import LCD_1in44
 import LCD_Config
+
+import spidev as SPI
+import ST7789
+
+RST = 27
+DC = 25
+BL = 24
+bus = 0
+device = 0
 
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
@@ -27,6 +37,9 @@ KEY_PRESS_PIN  = 13
 KEY1_PIN       = 21
 KEY2_PIN       = 20
 KEY3_PIN       = 16
+RST_PIN        = 25
+CS_PIN         = 8
+DC_PIN         = 24
 
 #init GPIO
 GPIO.setmode(GPIO.BCM) 
@@ -62,8 +75,6 @@ elif default_panel == "stat":
 #app config
 update_panel       = config['app']['update_panel']
 debug             = config['app']['debug']
-
-
 
 # url to disable pihole
 disable_url = pihole_api_url + "?disable=" + pihole_disable_time + "&auth=" + pihole_api_pass
@@ -116,7 +127,7 @@ while True:
         if debug == "true":
                 print ("Key Right Pushed")
         if update_counter == 20:
-            update()
+            git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')
             sys.exit(0)
         else:
             update_counter += 1
