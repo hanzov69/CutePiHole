@@ -14,11 +14,14 @@ DC = 25
 BL = 24
 bus = 0
 device = 0
+RST_PIN        = 25
+CS_PIN         = 8
+DC_PIN         = 24
 
 CONFIG_FILE = './cutepihole.ini'
 WEATHER_URL = 'https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=%s'
-FONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 12)
-LARGEFONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
+FONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 24)
+LARGEFONT = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 60)
 YPADDING = -2
 XPADDING = 0
 WIDTH = 240
@@ -197,8 +200,8 @@ class Panel():
         # paste the resized image
         self._image.paste(resized)
         # draw text
-        text_xy = ((self._image.width - wtext) / 2 + 1, self._top + 116)
-        shadow_xy = ((self._image.width - wtext) / 2, self._top + 116)
+        text_xy = ((self._image.width - wtext) / 4, self._top + 209)
+        shadow_xy = ((self._image.width - wtext) / 4 + 1, self._top + 210)
         self._draw.text(text_xy, text, font=FONT, fill='#FFFFFF')
         self._draw.text(shadow_xy, text, font=FONT, fill='#000000')
         
@@ -220,11 +223,11 @@ class Panel():
         self._image.paste(resized)
         # draw text
         wtext, htext = self._draw.textsize(self.CURRENT_COND)
-        cond_xy = ((self._image.width - wtext) / 2, htext - 12)
+        cond_xy = ((self._image.width - wtext) / 4, htext - 12)
         self._draw.text(cond_xy, self.CURRENT_COND, font=FONT, fill="#000000")
         temp_text = f'{self.CURRENT_TEMP:.0f}°'
-        temp_text_xy = (self._left, self._top + 98)
-        temp_shadow_xy = (self._left + 1, self._top + 98)
+        temp_text_xy = (self._left + 4, self._top + 179)
+        temp_shadow_xy = (self._left + 5, self._top + 180)
         self._draw.text(temp_shadow_xy, temp_text, font=LARGEFONT, fill="#000000")
         self._draw.text(temp_text_xy, temp_text, font=LARGEFONT, fill="#FFFFFF")  
        

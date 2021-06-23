@@ -22,6 +22,8 @@ import LCD_Config
 import spidev as SPI
 import ST7789
 
+GPIO.cleanup()
+
 RST = 27
 DC = 25
 BL = 24
@@ -89,6 +91,8 @@ def signal_handler(sig, frame):
 backlight = 1
 update_counter = 0
 interval = config['weather'].getint('interval')
+
+
 
 print('Startup complete')
 notify(Notification.READY)
