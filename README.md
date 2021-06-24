@@ -53,6 +53,7 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
 - `interval` - the frequency OpenWeatherMap is hit. Default is 60s, increase if you hit API rate limits, this doesn't need a livestream
 
 - `default_panel` - choose between `weather`,`stats`,`pihole`
+- `color_panel` - choose the panel background color, options are "pink", "blue", "white" (not recommended). Pink is default.
 
 - `pihole_api_url` - don't change this, unless you know what you're doing
 - `pihole_api_pass` - see above

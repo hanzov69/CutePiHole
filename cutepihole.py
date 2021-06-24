@@ -76,25 +76,13 @@ backlight = 1
 update_counter = 0
 interval = config['weather'].getint('interval')
 
-
-
 print('Startup complete')
 notify(Notification.READY)
 
 # main event
 while True:
     # Weather data!
-    if interval == 0:
-        try:
-            interval = config['weather'].getint('interval')
-            p.get_weather()
-        except KeyError:
-            time.sleep(1)
-            continue
-    else:
-        interval -= 1
-        if debug == "true":
-            print ("Seconds until next refresh: ", interval)
+    
 
     if GPIO.input(KEY_UP_PIN) == 0:
         screenid += 1
@@ -142,6 +130,17 @@ while True:
             p.get_pihole()
             p.draw_pihole()
         elif screenid == 2:
+            if interval == 0:
+                try:
+                    interval = config['weather'].getint('interval')
+                    p.get_weather()
+                except KeyError:
+                    time.sleep(1)
+                    continue
+            else:
+                interval -= 1
+                if debug == "true":
+                    print ("Seconds until next refresh: ", interval)
             p.draw_weather()
         elif screenid == 3:
             p.get_sysinfo()

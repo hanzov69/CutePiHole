@@ -6,6 +6,7 @@ interval = 60
 
 [panels]
 default_panel = weather
+color_panel = pink
 
 [pihole]
 pihole_api_url = http://localhost/admin/api.php
