@@ -1,21 +1,17 @@
 # -*- coding: utf-8 -*-
-#import requests
+import requests
 import re
 import subprocess
 import configparser
 import time
 import signal
 import sys
+import git
 from systemd.daemon import notify, Notification
-
 import RPi.GPIO as GPIO
 
 import panels
 p = panels.Panel()
-
-# Import LCD functions
-import LCD_1in44
-import LCD_Config
 
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
@@ -26,6 +22,10 @@ KEY_PRESS_PIN  = 13
 KEY1_PIN       = 21
 KEY2_PIN       = 20
 KEY3_PIN       = 16
+RST_PIN        = 27
+CS_PIN         = 8
+DC_PIN         = 25
+BL_PIN         = 24
 
 #init GPIO
 GPIO.setmode(GPIO.BCM) 
@@ -57,24 +57,26 @@ elif default_panel == "weather":
 elif default_panel == "stat":
     screenid = 3
 
+
 #app config
 update_panel       = config['app']['update_panel']
 debug             = config['app']['debug']
-
-
 
 # url to disable pihole
 disable_url = pihole_api_url + "?disable=" + pihole_disable_time + "&auth=" + pihole_api_pass
 
 # catch those SIGINTs
 def signal_handler(sig, frame):
-    GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.LOW)
-    GPIO.cleanup()
+    GPIO.output(BL_PIN,GPIO.LOW)
+    #GPIO.cleanup()
     print('Caught SIGINT')
     sys.exit(0)
 
 backlight = 1
+update_counter = 0
 interval = config['weather'].getint('interval')
+
+
 
 print('Startup complete')
 notify(Notification.READY)
@@ -105,7 +107,18 @@ while True:
             screenid = 3
 
     if GPIO.input(KEY_LEFT_PIN) == 0 and update_panel == "true":
+        if debug == "true":
+                print ("Key Left Pushed")
         screenid = 4
+
+    if GPIO.input(KEY_RIGHT_PIN) == 0 and update_panel == "true":
+        if debug == "true":
+                print ("Key Right Pushed")
+        if update_counter == 20:
+            git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')
+            sys.exit(0)
+        else:
+            update_counter += 1
 
     if GPIO.input(KEY_PRESS_PIN) == 0:
         if screenid == 1:
@@ -132,7 +145,9 @@ while True:
             p.get_sysinfo()
             p.draw_stats()
         elif screenid == 4:
-            panel_update()
+            p.draw_updatenotice()
+        elif screenid == 5:
+            p.draw_update()
         else:
             panel_pihole()
 
@@ -147,12 +162,12 @@ while True:
 
     if GPIO.input(KEY3_PIN) == 0: 
         if backlight == 1:
-            GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.LOW)
+            GPIO.output(BL_PIN,GPIO.LOW)
             backlight = 0
             if debug == "true":
                 print ("Key 3 Pushed - Disabling LCD")
         else:
-            GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.HIGH)
+            GPIO.output(BL_PIN,GPIO.HIGH)
             backlight = 1
             if debug == "true":
                 print ("Key 3 Pushed - Enabling LCD")

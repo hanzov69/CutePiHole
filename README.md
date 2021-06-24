@@ -4,12 +4,15 @@
 
 ## Assumptions:
 
-You have a Raspberry Pi of some flavor, using a [WaveShare 1.44inc LCD HAT](https://www.waveshare.com/wiki/1.44inch_LCD_HAT)
+You have a Raspberry Pi of some flavor, using a [WaveShare 1.3inch LCD HAT](https://www.waveshare.com/wiki/1.3inch_LCD_HAT)
+
+Note: Skip the version of fbcp they are pushing, use [fbcp-ili9341](https://github.com/juj/fbcp-ili9341) instead. Use
+>cmake -DSPI_BUS_CLOCK_DIVISOR=20 -DWAVESHARE_ST7789VW_HAT=ON -DBACKLIGHT_CONTROL=ON -DSTATISTICS=0 ..
 
 You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/pi-hole/#one-step-automated-install)
 
 ## Install
-1. Follow the guide found here: https://www.waveshare.com/wiki/1.44inch_LCD_HAT
+1. Follow the guide found here: https://www.waveshare.com/wiki/1.3inch_LCD_HAT
 2. Setup Python:
 
     >sudo apt-get update
@@ -23,8 +26,10 @@ You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/p
     >sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
     
     >sudo pip install pillow
+
+    > sudo pip install GitPython
     
-    >sudo apt-get install libopenjp2-7 libtiff5 python3-numpy ttf-dejavu python3-requests
+    >sudo apt-get install libopenjp2-7 libtiff5 python3-numpy ttf-dejavu python3-requests git
 
     Note: Apt is preferred as the wheels take forever to install on a pi zero
 3. Clone this repo to your home directory
