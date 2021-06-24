@@ -75,6 +75,7 @@ def signal_handler(sig, frame):
 backlight = 1
 update_counter = 0
 interval = config['weather'].getint('interval')
+pihole_interval = config['pihole'].getint('pihole_interval')
 
 print('Startup complete')
 notify(Notification.READY)
@@ -127,8 +128,16 @@ while True:
         p.draw_stats()
     else:
         if screenid == 1:
-            p.get_pihole()
-            p.draw_pihole()
+            if pihole_interval == 0:
+                try:
+                    pihole_interval = config['pihole'].getint('pihole_interval')
+                    p.get_pihole()
+                except KeyError:
+                    time.sleep(1)
+                    continue
+            else:
+                pihole_interval -= 1
+                p.draw_pihole()
         elif screenid == 2:
             if interval == 0:
                 try:
@@ -154,6 +163,7 @@ while True:
     if GPIO.input(KEY2_PIN) == 0: 
         try:
             r = requests.get(disable_url)
+            p.get_pihole()
             if debug == "true":
                 print ("Key 2 Pushed - Disabling PiHole for 5m")
         except:
@@ -177,4 +187,4 @@ while True:
 
     # Display image.
     p.display_paint()
-    time.sleep(.1)
+    time.sleep(.5)

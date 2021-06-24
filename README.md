@@ -7,7 +7,8 @@
 You have a Raspberry Pi of some flavor, using a [WaveShare 1.3inch LCD HAT](https://www.waveshare.com/wiki/1.3inch_LCD_HAT)
 
 Note: Skip the version of fbcp they are pushing, use [fbcp-ili9341](https://github.com/juj/fbcp-ili9341) instead. Use
->cmake -DSPI_BUS_CLOCK_DIVISOR=20 -DWAVESHARE_ST7789VW_HAT=ON -DBACKLIGHT_CONTROL=ON -DSTATISTICS=0 ..
+`cmake -DSPI_BUS_CLOCK_DIVISOR=20 -DWAVESHARE_ST7789VW_HAT=ON -DBACKLIGHT_CONTROL=ON -DSTATISTICS=0 ..`
+Don't add it to `/etc/rc.local` as they suggest, since it's not necessary for this app and can cause problems. Handy to have for boot diagnostics (kind of).
 
 You have installed Raspbian, and [Installed PiHole](https://github.com/pi-hole/pi-hole/#one-step-automated-install)
 

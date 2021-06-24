@@ -13,6 +13,7 @@ pihole_api_url = http://localhost/admin/api.php
 pihole_api_pass = 
 pihole_disable_time = 300
 pihole_config_file = /etc/pihole/setupVars.conf
+pihole_interval = 5
 
 [app]
 update_panel = false
