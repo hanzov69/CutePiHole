@@ -3,9 +3,6 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import requests
 import subprocess
-#import LCD_1in44
-#import LCD_Config
-
 import spidev as SPI
 import ST7789
 
@@ -14,9 +11,11 @@ DC = 25
 BL = 24
 bus = 0
 device = 0
-RST_PIN        = 25
-CS_PIN         = 8
-DC_PIN         = 24
+
+disp = ST7789.ST7789(SPI.SpiDev(bus, device),RST, DC, BL)
+
+disp.Init()
+disp.clear()
 
 CONFIG_FILE = './cutepihole.ini'
 WEATHER_URL = 'https://api.openweathermap.org/data/2.5/onecall?lat=%s&lon=%s&appid=%s&units=%s'
@@ -43,16 +42,6 @@ WEATHER_ICON_MAP = {
     "13": "Snow",
     "50": "Mist"    
 }
-
-# LCD Setup
-#disp = LCD_1in44.LCD()
-disp = ST7789.ST7789(SPI.SpiDev(bus, device),RST, DC, BL)
-
-#Lcd_ScanDir = LCD_1in44.SCAN_DIR_DFT 
-#disp.LCD_Init(Lcd_ScanDir)
-#disp.LCD_Clear()
-disp.Init()
-disp.clear()
 
 class Panel():
 
@@ -274,6 +263,7 @@ class Panel():
         angle = 180
         imr = self._image.rotate(angle)
         disp.ShowImage(imr,0,0)
+    
 
 def get_ip_location(ip=''):
     '''

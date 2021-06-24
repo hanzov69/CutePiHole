@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#import requests
+import requests
 import re
 import subprocess
 import configparser
@@ -8,27 +8,10 @@ import signal
 import sys
 import git
 from systemd.daemon import notify, Notification
-
-
 import RPi.GPIO as GPIO
 
 import panels
 p = panels.Panel()
-
-# Import LCD functions
-#import LCD_1in44
-import LCD_Config
-
-import spidev as SPI
-import ST7789
-
-GPIO.cleanup()
-
-RST = 27
-DC = 25
-BL = 24
-bus = 0
-device = 0
 
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
@@ -39,9 +22,10 @@ KEY_PRESS_PIN  = 13
 KEY1_PIN       = 21
 KEY2_PIN       = 20
 KEY3_PIN       = 16
-RST_PIN        = 25
+RST_PIN        = 27
 CS_PIN         = 8
-DC_PIN         = 24
+DC_PIN         = 25
+BL_PIN         = 24
 
 #init GPIO
 GPIO.setmode(GPIO.BCM) 
@@ -83,8 +67,8 @@ disable_url = pihole_api_url + "?disable=" + pihole_disable_time + "&auth=" + pi
 
 # catch those SIGINTs
 def signal_handler(sig, frame):
-    GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.LOW)
-    GPIO.cleanup()
+    GPIO.output(BL_PIN,GPIO.LOW)
+    #GPIO.cleanup()
     print('Caught SIGINT')
     sys.exit(0)
 
@@ -178,12 +162,12 @@ while True:
 
     if GPIO.input(KEY3_PIN) == 0: 
         if backlight == 1:
-            GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.LOW)
+            GPIO.output(BL_PIN,GPIO.LOW)
             backlight = 0
             if debug == "true":
                 print ("Key 3 Pushed - Disabling LCD")
         else:
-            GPIO.output(LCD_Config.LCD_BL_PIN,GPIO.HIGH)
+            GPIO.output(BL_PIN,GPIO.HIGH)
             backlight = 1
             if debug == "true":
                 print ("Key 3 Pushed - Enabling LCD")
