@@ -12,6 +12,8 @@
 - [ ] system for changing background color
 - [ ] rework images for better support of background color
 - [ ] configurable drop-shadow (black over white, white over black)
+- [ ] 3D model is not great, make a new moar better one
+
 
 ## Process / Other
 - [ ] Tagging/Releases in Github
@@ -20,6 +22,7 @@
 - [x] 3D Models for case
 
 ## Defect / Code Quality
+- [ ] rework all images to correct resolution to avoid resize
 - [x] `requirements.txt` freeze package versions
 - [x] `Panel()` class
 - [x] allcaps constants/global vars
