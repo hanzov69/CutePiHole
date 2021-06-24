@@ -115,6 +115,8 @@ while True:
         if debug == "true":
                 print ("Key Right Pushed")
         if update_counter == 20:
+            p.draw_updating()
+            p.display_paint()
             git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')
             sys.exit(0)
         else:
@@ -146,8 +148,6 @@ while True:
             p.draw_stats()
         elif screenid == 4:
             p.draw_updatenotice()
-        elif screenid == 5:
-            p.draw_update()
         else:
             panel_pihole()
 

@@ -224,7 +224,7 @@ class Panel():
         '''
         Draw the Update Warning
         '''
-        text = f'Update Warning\nTo check for\nor apply an update\nhold left\non Joystick\nfor a few seconds'
+        text = f'Update Warning\nTo check for\nor apply an update\nhold Right\non Joystick\nfor a few seconds'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
@@ -239,7 +239,7 @@ class Panel():
             font=FONT, 
             fill='#FF00FF'
         )
-    def draw_update(self):
+    def draw_updating(self):
         '''
         Draw the Updating dialog
         '''

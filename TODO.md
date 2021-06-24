@@ -3,7 +3,7 @@
 - [x] Images!
 - [x] Rotate output
 - [x] Click to save current screen as default
-- [ ] Field upgrade routine
+- [x] Field upgrade routine
 - [ ] Clock Panel
 - [ ] Configure Unit type (for imperial savages)
 - [x] systemd units

@@ -8,7 +8,7 @@ Group=pi
 WorkingDirectory=/home/pi/CutePiHole
 ExecStart=/usr/bin/python /home/pi/CutePiHole/cutepihole.py
 Environment=PYTHONUNBUFFERED=1
-Restart=on-failure
+Restart=always
 RestartSec=5s
 Type=notify
 
