@@ -106,7 +106,7 @@ while True:
     if GPIO.input(KEY_RIGHT_PIN) == 0 and update_panel == "true":
         if debug == "true":
                 print ("Key Right Pushed")
-        if update_counter == 10:
+        if update_counter == 5:
             p.draw_updating()
             p.display_paint()
             git.cmd.Git().fetch('--all')
