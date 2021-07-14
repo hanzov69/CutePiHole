@@ -167,7 +167,7 @@ class Panel():
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
             outline=0,
-            fill='#000000'
+            fill=self._color_panel
         )
         # draw the text TODO: may need to adjust the spacing value
         self._draw.multiline_text(
@@ -175,7 +175,7 @@ class Panel():
             text, 
             spacing=1, 
             font=FONT, 
-            fill='#FF00FF'
+            fill='#000000'
         )
         
     
