@@ -118,7 +118,7 @@ class Panel():
         self.IP = "IP: %s" % subprocess.check_output(ip_cmd, shell=True).decode('utf-8').strip()
         host_cmd = "hostname | tr -d \'\\n\'"
         self.HOST = subprocess.check_output(host_cmd, shell=True).decode('utf-8')
-        cpu_cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+        cpu_cmd = "top -bn1 | awk '/^%Cpu/{printf \"CPU%%: \" $2}'"
         self.CPU = subprocess.check_output(cpu_cmd, shell=True).decode('utf-8')
         mem_cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%s MB  %.2f%%\", $3,$2,$3*100/$2 }'"
         self.MEM = subprocess.check_output(mem_cmd, shell=True).decode('utf-8')
@@ -127,6 +127,8 @@ class Panel():
         temp_cmd =  "cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf \"CPU Temp: %.1f C\", $(NF-0) / 1000}\'"
         self.CPU_TEMP = subprocess.check_output(temp_cmd, shell=True).decode('utf-8')
         self.TAG_VERSION = git.cmd.Git().describe('--tags')
+        uptime_cmd = "uptime -p | awk -F'( )+' '{printf \"Uptime: \" $2\" \" $3}'"
+        self.UPTIME = subprocess.check_output(uptime_cmd, shell=True).decode('utf-8')
         
     
     def get_pihole(self):
@@ -160,7 +162,7 @@ class Panel():
         '''
         Draw the RPi system info (all textual)
         '''
-        text = f'{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}\nVersion: {self.TAG_VERSION}'
+        text = f'{self.HOST}\n{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.UPTIME}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}\nVersion: {self.TAG_VERSION}'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
