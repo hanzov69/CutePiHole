@@ -147,6 +147,7 @@ while True:
                     time.sleep(1)
                     continue
             else:
+                time.sleep(1)
                 interval -= 1
                 if debug == "true":
                     print ("Seconds until next refresh: ", interval)
