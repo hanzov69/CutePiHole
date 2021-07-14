@@ -109,7 +109,8 @@ while True:
         if update_counter == 10:
             p.draw_updating()
             p.display_paint()
-            git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')
+            git.cmd.Git().fetch('--all')
+            git.cmd.Git().reset('--hard', 'origin/releases')
             sys.exit(0)
         else:
             update_counter += 1
