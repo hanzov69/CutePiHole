@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import requests
 import subprocess
+import git
 import spidev as SPI
 import ST7789
 
@@ -43,6 +44,12 @@ WEATHER_ICON_MAP = {
     "50": "Mist"    
 }
 
+PANEL_COLOR_MAP = {
+    "pink":  "#FFC4C4",
+    "blue":  "#A9D8FF",
+    "white": "#FFFFFF"
+}
+
 class Panel():
 
     def __init__(self, width=WIDTH, height=HEIGHT, config_file=CONFIG_FILE):
@@ -62,7 +69,8 @@ class Panel():
         # initialize the canvas
         self._image = Image.new('RGB', (width, height))
         self._draw = ImageDraw.Draw(self._image)
-        self._draw.rectangle((0, 0, width, height), outline=0, fill=(255, 255, 255))
+        #self._draw.rectangle((0, 0, width, height), outline=0, fill=(255, 255, 255))
+        self._draw.rectangle((0, 0, width, height), outline=0, fill=(255, 196, 196))
         # get some padding going
         self._top = YPADDING
         self._bottom = height - YPADDING
@@ -100,6 +108,7 @@ class Panel():
         self._pihole_disable_time = cfg['pihole'].getint('pihole_disable_time')
         # default panel if not indicated is pihole
         self._default_panel = PANEL_SCREENID_MAP.get(cfg['panels']['default_panel'], 1)
+        self._color_panel = PANEL_COLOR_MAP.get(cfg['panels']['color_panel'], "#FFC4C4")
     
     def get_sysinfo(self):
         '''
@@ -109,7 +118,7 @@ class Panel():
         self.IP = "IP: %s" % subprocess.check_output(ip_cmd, shell=True).decode('utf-8').strip()
         host_cmd = "hostname | tr -d \'\\n\'"
         self.HOST = subprocess.check_output(host_cmd, shell=True).decode('utf-8')
-        cpu_cmd = "top -bn1 | grep load | awk '{printf \"CPU Load: %.2f\", $(NF-2)}'"
+        cpu_cmd = "top -bn1 | awk '/^%Cpu/{printf \"CPU%%: \" $2}'"
         self.CPU = subprocess.check_output(cpu_cmd, shell=True).decode('utf-8')
         mem_cmd = "free -m | awk 'NR==2{printf \"Mem: %s/%s MB  %.2f%%\", $3,$2,$3*100/$2 }'"
         self.MEM = subprocess.check_output(mem_cmd, shell=True).decode('utf-8')
@@ -117,6 +126,9 @@ class Panel():
         self.DISK = subprocess.check_output(disk_cmd, shell=True).decode('utf-8')
         temp_cmd =  "cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf \"CPU Temp: %.1f C\", $(NF-0) / 1000}\'"
         self.CPU_TEMP = subprocess.check_output(temp_cmd, shell=True).decode('utf-8')
+        self.TAG_VERSION = git.cmd.Git().describe('--tags')
+        uptime_cmd = "uptime -p | awk -F'( )+' '{printf \"Uptime: \" $2\" \" $3}'"
+        self.UPTIME = subprocess.check_output(uptime_cmd, shell=True).decode('utf-8')
         
     
     def get_pihole(self):
@@ -150,7 +162,7 @@ class Panel():
         '''
         Draw the RPi system info (all textual)
         '''
-        text = f'{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}'
+        text = f'{self.HOST}\n{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.UPTIME}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}\nVersion: {self.TAG_VERSION}'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
@@ -171,23 +183,26 @@ class Panel():
         '''
         Draw the adblocking info with a nice image indicating if blocking is enabled or not
         '''
-        # get the image + text ready
+        # draw our background
+        self._draw.rectangle(
+            (0, 0, self._image.width, self._image.height),
+            outline=0,
+            fill=self._color_panel
+        )
+        
+        # get the image to use
         img = Image.open('./images/%s.png' % self.STATUS)
-        newsize = (WIDTH, HEIGHT)
-        resized = img.resize(newsize)
+
+        # paste the image, using the image as a transparency mask
+        self._image.paste(img, (0, 0), mask=img)
+
+        # what's our status?
         if self.STATUS == 'enabled':
             text = 'Blocked Ads: %d' % self.ADSBLOCKED
         else:
             text = 'Blocking Disabled!'
         wtext, htext = self._draw.textsize(text)
-        # clear the current canvas
-        self._draw.rectangle(
-            (0, 0, self._image.width, self._image.height),
-            outline=0,
-            fill='#000000'
-        )
-        # paste the resized image
-        self._image.paste(resized)
+        
         # draw text
         text_xy = ((self._image.width - wtext) / 4, self._top + 209)
         shadow_xy = ((self._image.width - wtext) / 4 + 1, self._top + 210)
@@ -199,17 +214,19 @@ class Panel():
         '''
         Draw the weather information
         '''
-        # get the image + text ready
-        img = Image.open('./images/%s.bmp' % self.WEATHER_ICON)
-        newsize = (WIDTH, HEIGHT)
-        resized = img.resize(newsize)
-        # clear the current canvas
+        # draw our background
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
             outline=0,
-            fill='#000000'
-        )        # paste the resized image
-        self._image.paste(resized)
+            fill=self._color_panel
+        )
+        
+        # get the image to use
+        img = Image.open('./images/%s.png' % self.WEATHER_ICON)
+
+        # paste the image over the background, using the image as a transparency mask
+        self._image.paste(img, (0, 0), mask=img)
+        
         # draw text
         wtext, htext = self._draw.textsize(self.CURRENT_COND)
         cond_xy = ((self._image.width - wtext) / 4, htext - 12)
@@ -224,7 +241,7 @@ class Panel():
         '''
         Draw the Update Warning
         '''
-        text = f'Update Warning\nTo check for\nor apply an update\nhold Right\non Joystick\nfor a few seconds'
+        text = f'Update Warning\nTo check for\nor apply an update\nhold Left\non Joystick\nfor a few seconds'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
