@@ -13,6 +13,8 @@ import RPi.GPIO as GPIO
 import panels
 p = panels.Panel()
 
+#note the LCD will be mounted "upside down", left is right, up is down, etc.
+
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
 KEY_DOWN_PIN   = 19
@@ -28,6 +30,7 @@ DC_PIN         = 25
 BL_PIN         = 24
 
 #init GPIO
+
 GPIO.setmode(GPIO.BCM) 
 GPIO.setup(KEY_UP_PIN,      GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
 GPIO.setup(KEY_DOWN_PIN,    GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
@@ -103,7 +106,7 @@ while True:
     if GPIO.input(KEY_RIGHT_PIN) == 0 and update_panel == "true":
         if debug == "true":
                 print ("Key Right Pushed")
-        if update_counter == 20:
+        if update_counter == 10:
             p.draw_updating()
             p.display_paint()
             git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')

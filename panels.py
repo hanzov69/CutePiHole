@@ -3,6 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 import re
 import requests
 import subprocess
+import git
 import spidev as SPI
 import ST7789
 
@@ -125,6 +126,7 @@ class Panel():
         self.DISK = subprocess.check_output(disk_cmd, shell=True).decode('utf-8')
         temp_cmd =  "cat /sys/class/thermal/thermal_zone0/temp |  awk \'{printf \"CPU Temp: %.1f C\", $(NF-0) / 1000}\'"
         self.CPU_TEMP = subprocess.check_output(temp_cmd, shell=True).decode('utf-8')
+        self.TAG_VERSION = git.cmd.Git().describe('--tags')
         
     
     def get_pihole(self):
@@ -158,7 +160,7 @@ class Panel():
         '''
         Draw the RPi system info (all textual)
         '''
-        text = f'{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}'
+        text = f'{self.IP}\n{self.CPU}\n{self.MEM}\n{self.DISK}\n{self.CPU_TEMP}\nDNS Queries: {self.DNSQUERIES}\nVersion: {self.TAG_VERSION}'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),
@@ -237,7 +239,7 @@ class Panel():
         '''
         Draw the Update Warning
         '''
-        text = f'Update Warning\nTo check for\nor apply an update\nhold Right\non Joystick\nfor a few seconds'
+        text = f'Update Warning\nTo check for\nor apply an update\nhold Left\non Joystick\nfor a few seconds'
         # clear the current canvas
         self._draw.rectangle(
             (0, 0, self._image.width, self._image.height),

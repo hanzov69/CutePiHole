@@ -57,6 +57,8 @@ Don't add it to `/etc/rc.local` as they suggest, since it's not necessary for th
 - Disable PiHole blocking for 5 minutes (default) with Button 2
 - Turn Off/On the display with Button 3
 - Save Current screen as "default" by clicking joystick
+- Update (if enabled) to latest release from git by holding left on stick
+- Scrolling through menus may be slow, this is code+Pi Zero related, use long presses
 
 ## Configuration Options
 - `owm_api_key` - see above
@@ -72,8 +74,8 @@ Don't add it to `/etc/rc.local` as they suggest, since it's not necessary for th
 - `pihole_disable_time` - duration to temporarily suspend pihole blocking, time is in seconds
 - `pihole_config_file` - no function currently
 
-- `update_panel` - no function currently
-- `debug` - displays debug information on console
+- `update_panel` - allows for automatic updating to latest release from git, false disables
+- `debug` - displays debug information on console (note this is handled with `prints`, which sucks, TODO)
 
 ## Credits
 Please see [LICENSE_SUPPLEMENT](LICENSE_SUPPLEMENT) for supplementary license details.
