@@ -13,6 +13,8 @@ import RPi.GPIO as GPIO
 import panels
 p = panels.Panel()
 
+#note the LCD will be mounted "upside down", left is right, up is down, etc.
+
 # Get some GPIO pins sorted
 KEY_UP_PIN     = 6 
 KEY_DOWN_PIN   = 19
@@ -28,6 +30,7 @@ DC_PIN         = 25
 BL_PIN         = 24
 
 #init GPIO
+
 GPIO.setmode(GPIO.BCM) 
 GPIO.setup(KEY_UP_PIN,      GPIO.IN, pull_up_down=GPIO.PUD_UP)    # Input with pull-up
 GPIO.setup(KEY_DOWN_PIN,    GPIO.IN, pull_up_down=GPIO.PUD_UP)  # Input with pull-up
@@ -75,8 +78,7 @@ def signal_handler(sig, frame):
 backlight = 1
 update_counter = 0
 interval = config['weather'].getint('interval')
-
-
+pihole_interval = config['pihole'].getint('pihole_interval')
 
 print('Startup complete')
 notify(Notification.READY)
@@ -84,17 +86,7 @@ notify(Notification.READY)
 # main event
 while True:
     # Weather data!
-    if interval == 0:
-        try:
-            interval = config['weather'].getint('interval')
-            p.get_weather()
-        except KeyError:
-            time.sleep(1)
-            continue
-    else:
-        interval -= 1
-        if debug == "true":
-            print ("Seconds until next refresh: ", interval)
+    
 
     if GPIO.input(KEY_UP_PIN) == 0:
         screenid += 1
@@ -114,7 +106,7 @@ while True:
     if GPIO.input(KEY_RIGHT_PIN) == 0 and update_panel == "true":
         if debug == "true":
                 print ("Key Right Pushed")
-        if update_counter == 20:
+        if update_counter == 10:
             p.draw_updating()
             p.display_paint()
             git.cmd.Git().pull('https://github.com/hanzov69/CutePiHole','releases')
@@ -139,9 +131,29 @@ while True:
         p.draw_stats()
     else:
         if screenid == 1:
-            p.get_pihole()
-            p.draw_pihole()
+            if pihole_interval == 0:
+                try:
+                    pihole_interval = config['pihole'].getint('pihole_interval')
+                    p.get_pihole()
+                except KeyError:
+                    time.sleep(1)
+                    continue
+            else:
+                pihole_interval -= 1
+                p.draw_pihole()
         elif screenid == 2:
+            if interval == 0:
+                try:
+                    interval = config['weather'].getint('interval')
+                    p.get_weather()
+                except KeyError:
+                    time.sleep(1)
+                    continue
+            else:
+                time.sleep(1)
+                interval -= 1
+                if debug == "true":
+                    print ("Seconds until next refresh: ", interval)
             p.draw_weather()
         elif screenid == 3:
             p.get_sysinfo()
@@ -155,6 +167,7 @@ while True:
     if GPIO.input(KEY2_PIN) == 0: 
         try:
             r = requests.get(disable_url)
+            p.get_pihole()
             if debug == "true":
                 print ("Key 2 Pushed - Disabling PiHole for 5m")
         except:
@@ -178,4 +191,4 @@ while True:
 
     # Display image.
     p.display_paint()
-    time.sleep(.1)
+    time.sleep(.5)
