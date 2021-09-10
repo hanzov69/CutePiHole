@@ -1,6 +1,6 @@
 # CutePiHole
 
-This is still very much a Work In Progress. 
+This is still very much a Work In Progress.  
 
 ## 3D Printing
 I'm terrible at 3D Modeling stuff, so if you really want to help, fix (or create an alternate) case design!
