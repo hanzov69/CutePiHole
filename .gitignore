@@ -10,6 +10,10 @@ sonar-project.properties
 cutepihole.ini
 notes.txt
 
+# pictures
+image1.jpeg
+image2.jpeg
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
