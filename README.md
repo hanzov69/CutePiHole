@@ -87,6 +87,6 @@ Credits/Attributions for the Icons used are available in [images/CREDITS](images
 
 Project inspired by [this excellent guide](https://learn.adafruit.com/pi-hole-ad-blocker-with-pi-zero-w/install-pi-hole) by AdaFruit
 
-Case is a (bad) remix of a few designs found on Thingiverse
+Case is a (bad) remix of a few designs found on Thingiverse (use printables instead)
 - [4798714](https://www.thingiverse.com/thing:4798714)
 - [3334127](https://www.thingiverse.com/thing:3334127)
