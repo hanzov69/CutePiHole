@@ -7,7 +7,7 @@ entrypoints==0.3
 gitdb==4.0.7
 GitPython==3.1.18
 gpiozero==1.6.2
-idna==2.6
+idna==3.7
 keyring==17.1.1
 keyrings.alt==3.1.1
 numpy==1.22.0
