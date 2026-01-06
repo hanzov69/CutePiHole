@@ -5,7 +5,7 @@ colorzero==1.1
 cryptography==39.0.1
 entrypoints==0.3
 gitdb==4.0.7
-GitPython==3.1.18
+GitPython==3.1.41
 gpiozero==1.6.2
 idna==2.6
 keyring==17.1.1
